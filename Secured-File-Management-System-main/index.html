@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitored File Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('assets/background-img.jpg') no-repeat center center fixed, #1a1a1a;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.4);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            width: 800px;
+            max-width: 95%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #000000;
+            margin: 0;
+        }
+
+        h2 {
+            color: #2d2c2c;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.2s;
+            background-color: #323334;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .file-upload {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .dropdown-btn {
+            padding: 10px 35px;
+            background-color: #323334;
+            color: white;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+        }
+
+        .dropdown-content button {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        #file-list {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            position: relative;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .file-name {
+            flex-grow: 1;
+        }
+
+        .file-dropdown {
+            position: relative;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .file-dropdown-btn {
+            padding: 5px 10px;
+            background-color: #323334;
+            color: white;
+            font-size: 12px;
+        }
+
+        .file-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #f9f9f9;
+            min-width: 150px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+        }
+
+        .file-dropdown-content button {
+            color: #333;
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+            margin: 0;
+            border-radius: 0;
+            font-size: 12px;
+        }
+
+        .file-dropdown:hover .file-dropdown-content {
+            display: block;
+        }
+
+        #auth-message {
+            color: #dc3545;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .directory {
+            font-weight: bold;
+            color: #1a73e8;
+        }
+
+        #current-path {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Monitored File Management System</h1>
+        </header>
+        <main>
+            <div id="auth-section">
+                <h2>Login</h2>
+                <input type="text" id="username" placeholder="Username">
+                <input type="password" id="password" placeholder="Password">
+                <input type="text" id="mfa-code" placeholder="MFA Code">
+                <button onclick="login()">Login</button>
+                <p id="auth-message"></p>
+            </div>
+            <div id="file-section" style="display: none;">
+                <h2>File Management</h2>
+                <div id="current-path">Current Path: /</div>
+                
+                <div class="file-upload">
+                    <input type="file" id="file-input" multiple>
+                    <button onclick="uploadFile()">Upload File</button>
+                </div>
+                
+                <div class="dropdown">
+                    <button class="dropdown-btn" onclick="toggleDropdown()">File Operations ▼</button>
+                    <div class="dropdown-content">
+                        <button onclick="createFile()">Create New File</button>
+                        <button onclick="createDirectory()">Create Directory</button>
+                        <button onclick="goHome()">Go to Home Directory</button>
+                        <button onclick="sortFiles()">Sort Files</button>
+                        <button onclick="searchInAllFiles()">Search In All Files</button>
+                    </div>
+                </div>
+                
+                <div id="file-list">
+                    <!-- Sample file item with dropdown - this would be generated dynamically in your JS -->
+                    <div class="file-item">
+                        <div class="file-name">example.txt</div>
+                        <div class="file-actions">
+                            <div class="file-dropdown">
+                                <button class="file-dropdown-btn">Actions ▼</button>
+                                <div class="file-dropdown-content">
+                                    <button onclick="downloadFile('example.txt')">Download</button>
+                                    <button onclick="shareFile('example.txt')">Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Another sample for a directory -->
+                    <div class="file-item">
+                        <div class="file-name directory">Documents</div>
+                        <div class="file-actions">
+                            <div class="file-dropdown">
+                                <button class="file-dropdown-btn">Actions ▼</button>
+                                <div class="file-dropdown-content">
+                                    <button onclick="openDirectory('Documents')">Open</button>
+                                    <button onclick="shareFile('Documents')">Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button onclick="refreshFiles()">Refresh</button>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="scripts.js">
+         window.onclick = function (event) {
+            if (!event.target.matches('.dropdown-btn')) {
+            var dropdowns = document.getElementsByClassName("dropdown");
+            for (var i = 0; i < dropdowns.length; i++) {
+                dropdowns[i].classList.remove("show");
+            }
+            }
+        }
+    </script>
+</body>
+</html>
